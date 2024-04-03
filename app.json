@@ -1,0 +1,12 @@
+{
+  "expo": {
+    "name": "Lifafa",
+    "slug": "Lifafa",
+    "version": "1.0.0",
+    "assetBundlePatterns": ["**/*"],
+    "android": {
+      "package": "com.lifafa.Lifafa"
+    }
+  },
+  "name": "Lifafa"
+}
