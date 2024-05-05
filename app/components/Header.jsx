@@ -11,7 +11,7 @@ export function Header() {
       </View>
 
       <View className="border border-gray-300 rounded-2xl px-2 py-0.5 items-center">
-        <Text className="text-xs">FAQ</Text>
+        <Text className="text-xs font-medium">FAQ</Text>
       </View>
     </View>
   );
