@@ -1,11 +1,12 @@
 import React, { useState, useMemo, useEffect } from "react";
-import { View, Text, TextInput, TouchableOpacity, Image } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, Image, Button } from "react-native";
 import { images } from "../assets/assets";
 import dayjs from "dayjs";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { ChevronDownIcon } from "react-native-heroicons/solid";
 import { UsersIcon, ClockIcon } from "react-native-heroicons/outline";
 import { MultilineTextInput } from "./MultilineTextInput";
+import { TransactionRequestModal } from "./TransactionRequestModal";
 
 export const CreateLifafaComponent = () => {
   const [amount, setAmount] = useState("0");
@@ -13,13 +14,14 @@ export const CreateLifafaComponent = () => {
   const [time, setTime] = useState();
   const [desc, setDesc] = useState("");
   const [isTimePickerVisible, setIsTimePickerVisible] = useState(false);
+  const [transactionModalVisible, setTransactionModalVisible] = useState(true);
 
-  const isCreateDisabled = useMemo(()=>{
+  const isCreateDisabled = useMemo(() => {
     return amount === "0" || numPeople === "" || desc === "" || time === null;
-  }, [amount, numPeople, time, desc]) 
+  }, [amount, numPeople, time, desc]);
 
-//   useEffect(()=>{
-//   }, [])
+  //   useEffect(()=>{
+  //   }, [])
 
   return (
     <View className="min-w-full bg-[#F5F6FE] my-8 rounded-3xl p-4 shadow">
@@ -106,6 +108,7 @@ export const CreateLifafaComponent = () => {
         disabled={isCreateDisabled} // Disable the button if any of the conditions are true
         style={{ backgroundColor: isCreateDisabled ? "#B9B9B9" : "black" }}
         className="p-4 rounded-full mt-6"
+        onPress={() => setTransactionModalVisible(true)}
       >
         <Text className="text-white text-center">Create</Text>
       </TouchableOpacity>
@@ -121,6 +124,14 @@ export const CreateLifafaComponent = () => {
         onCancel={() => {
           setIsTimePickerVisible(false);
         }}
+      />
+
+
+      <TransactionRequestModal
+        visible={transactionModalVisible}
+        setVisible={setTransactionModalVisible}
+        onAccept={() => {}}
+        onReject={() => {}}
       />
     </View>
   );
