@@ -7,4 +7,9 @@ export const images = {
     usdc: require("./images/tokens/usdc.jpeg"),
     wif: require("./images/tokens/wif.jpeg"),
   },
+  envelope: {
+    bottom: require("./images/envelope/bottom.png"),
+    top: require("./images/envelope/top.png"),
+    star: require("./images/envelope/star.png"),
+  },
 };

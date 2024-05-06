@@ -5,10 +5,12 @@ import { useState } from "react";
 import { useOkto } from "okto-sdk-react-native";
 import { Layout } from "../components/Layout";
 import { CreateLifafaComponent } from "../components/CreateLifafaComponent";
+import { EnvelopeHome } from "../components/EnvelopeHome";
 
 function Home() {
   return (
     <Layout>
+      <EnvelopeHome />
       <CreateLifafaComponent />
     </Layout>
   );

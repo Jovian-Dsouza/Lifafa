@@ -14,7 +14,7 @@ export const CreateLifafaComponent = () => {
   const [time, setTime] = useState();
   const [desc, setDesc] = useState("");
   const [isTimePickerVisible, setIsTimePickerVisible] = useState(false);
-  const [transactionModalVisible, setTransactionModalVisible] = useState(true);
+  const [transactionModalVisible, setTransactionModalVisible] = useState(false);
 
   const isCreateDisabled = useMemo(() => {
     return amount === "0" || numPeople === "" || desc === "" || time === null;
@@ -24,7 +24,7 @@ export const CreateLifafaComponent = () => {
   //   }, [])
 
   return (
-    <View className="min-w-full bg-[#F5F6FE] my-8 rounded-3xl p-4 shadow">
+    <View className="min-w-full bg-[#F5F6FE] my-6 rounded-3xl p-4 shadow">
       <View className="flex-row justify-between items-center mb-4">
         <Text className="text-xl font-bold">Create Lifafa</Text>
         <Text className="text-[#707070] text-xs">Bal: 1065 USDC</Text>
