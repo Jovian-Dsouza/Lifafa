@@ -1,5 +1,12 @@
 import React, { useState, useMemo, useEffect } from "react";
-import { View, Text, TextInput, TouchableOpacity, Image, Button } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Image,
+  Button,
+} from "react-native";
 import { images } from "../assets/assets";
 import dayjs from "dayjs";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
@@ -7,6 +14,7 @@ import { ChevronDownIcon } from "react-native-heroicons/solid";
 import { UsersIcon, ClockIcon } from "react-native-heroicons/outline";
 import { MultilineTextInput } from "./MultilineTextInput";
 import { TransactionRequestModal } from "./TransactionRequestModal";
+import { EnvelopeModal } from "./EnvelopeModal";
 
 export const CreateLifafaComponent = () => {
   const [amount, setAmount] = useState("0");
@@ -15,6 +23,7 @@ export const CreateLifafaComponent = () => {
   const [desc, setDesc] = useState("");
   const [isTimePickerVisible, setIsTimePickerVisible] = useState(false);
   const [transactionModalVisible, setTransactionModalVisible] = useState(false);
+  const [envelopeModalVisible, setEnvelopModalVisible] = useState(false);
 
   const isCreateDisabled = useMemo(() => {
     return amount === "0" || numPeople === "" || desc === "" || time === null;
@@ -126,12 +135,16 @@ export const CreateLifafaComponent = () => {
         }}
       />
 
-
       <TransactionRequestModal
         visible={transactionModalVisible}
         setVisible={setTransactionModalVisible}
-        onAccept={() => {}}
+        onAccept={() => {setEnvelopModalVisible(true)}}
         onReject={() => {}}
+      />
+
+      <EnvelopeModal
+        visible={envelopeModalVisible}
+        setVisible={setEnvelopModalVisible}
       />
     </View>
   );
