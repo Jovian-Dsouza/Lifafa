@@ -6,12 +6,14 @@ import { useOkto } from "okto-sdk-react-native";
 import { Layout } from "../components/Layout";
 import { CreateLifafaComponent } from "../components/CreateLifafaComponent";
 import { EnvelopeHome } from "../components/EnvelopeHome";
+import { ViewEnvelopesComponent } from "../components/ViewEnvelopesComponent";
 
 function Home() {
   return (
     <Layout>
       <EnvelopeHome />
       <CreateLifafaComponent />
+      <ViewEnvelopesComponent/>
     </Layout>
   );
 }
