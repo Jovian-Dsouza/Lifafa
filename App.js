@@ -9,6 +9,7 @@ import "react-native-get-random-values";
 import { Buffer } from "buffer";
 import { ClusterProvider } from "./app/providers/ClusterProvider";
 import { ConnectionProvider } from "./app/providers/ConnectionProvider";
+import { WalletProvider } from "./app/providers/WalletProvider";
 
 global.Buffer = Buffer;
 global.TextEncoder = require("text-encoding").TextEncoder;
@@ -39,9 +40,11 @@ export default function App() {
     <OktoProvider apiKey={OKTO_CLIENT_API_KEY} buildType={BuildType.SANDBOX}>
       <ClusterProvider defaultClusterName="devnet">
         <ConnectionProvider>
-          <NavigationContainer>
-            <Navigation />
-          </NavigationContainer>
+          <WalletProvider>
+            <NavigationContainer>
+              <Navigation />
+            </NavigationContainer>
+          </WalletProvider>
         </ConnectionProvider>
       </ClusterProvider>
     </OktoProvider>
