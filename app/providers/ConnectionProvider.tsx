@@ -7,6 +7,7 @@ import React, {
   useContext,
 } from "react";
 import { useCluster } from "./ClusterProvider";
+import { AnchorProvider } from "@coral-xyz/anchor";
 
 export interface ConnectionProviderProps {
   children: ReactNode;
@@ -24,8 +25,14 @@ export const ConnectionProvider: FC<ConnectionProviderProps> = ({
     [selectedCluster, config]
   );
 
+  const anchorProvider = useMemo(() => {
+    return new AnchorProvider(connection, null, {
+      commitment: "confirmed",
+    });
+  }, [connection]);
+
   return (
-    <ConnectionContext.Provider value={{ connection }}>
+    <ConnectionContext.Provider value={{ connection, anchorProvider }}>
       {children}
     </ConnectionContext.Provider>
   );
@@ -33,6 +40,7 @@ export const ConnectionProvider: FC<ConnectionProviderProps> = ({
 
 export interface ConnectionContextState {
   connection: Connection;
+  anchorProvider: AnchorProvider;
 }
 
 export const ConnectionContext = createContext<ConnectionContextState>(
