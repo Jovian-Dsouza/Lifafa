@@ -1,28 +1,28 @@
-import { AnchorProvider, Program } from "@coral-xyz/anchor";
-import { Connection, PublicKey } from "@solana/web3.js";
-import { useMemo } from "react";
+import { Program } from "@coral-xyz/anchor";
+import { PublicKey } from "@solana/web3.js";
+import { useEffect, useMemo, useState } from "react";
 import * as anchor from "@coral-xyz/anchor";
 import { BN } from "@coral-xyz/anchor";
 import { RedEnvelope } from "../../lifafa-solana-contracts/target/types/red_envelope";
 import idl from "../../lifafa-solana-contracts/target/idl/red_envelope.json";
 import { SystemProgram, Transaction, LAMPORTS_PER_SOL } from "@solana/web3.js";
+import { solanaTransaction } from "okto-sdk-react-native";
+import { useWallet } from "../providers/WalletProvider";
+import { useConnection } from "../providers/ConnectionProvider";
 
-export function useRedEnvelopeProgram(
-  connection: Connection
-) {
-  const oktoWalletPublicKey = new PublicKey(
-    "58chdRkNN8RN72jSyUGnwcN8nhUVrHcZrHEGpcYF6Jsz"
-  );
-  const redEnvelopeProgramId = new PublicKey(
-    "58chdRkNN8RN72jSyUGnwcN8nhUVrHcZrHEGpcYF6Jsz"
-  );
+export const RED_ENVELOPE_PROGRAM_ID =
+  "58chdRkNN8RN72jSyUGnwcN8nhUVrHcZrHEGpcYF6Jsz";
 
-  const provider = useMemo(() => {
-    return new AnchorProvider(connection, null, {
-      // preflightCommitment: "confirmed",
-      commitment: "confirmed",
-    });
-  }, [connection]);
+export function useRedEnvelopeProgram() {
+  const { wallet, walletPublicKey, network } = useWallet();
+  const { connection, anchorProvider: provider } = useConnection();
+
+  const redEnvelopeProgramId = new PublicKey(RED_ENVELOPE_PROGRAM_ID);
+
+  useEffect(() => {
+    console.log("Wallet Public Key", walletPublicKey);
+    console.log("Wallet network", network);
+  }, [walletPublicKey]);
 
   const program = useMemo(() => {
     if (!provider) {
@@ -97,45 +97,43 @@ export function useRedEnvelopeProgram(
     maxClaims: number,
     ownerName: string
   ) {
+    console.log(`\nCreate Envelope, amount = ${amount}, id = ${id}`);
     if (!program) {
-      console.error("Program not initialized");
-      return;
+      throw new Error("Program not initialized");
+    }
+    if (!wallet) {
+      throw new Error("Wallet not initialized");
     }
     const [lifafaPDA] = getLifafaPDA(id);
-    console.log(`\nCreate Envelope, amount = ${amount}, id = ${id}`);
-    try {
-      const instruction = await program.methods
-        .createEnvelope(
-          new anchor.BN(id),
-          new anchor.BN(amount * LAMPORTS_PER_SOL),
-          new anchor.BN(timeLimit),
-          maxClaims,
-          ownerName
-        )
-        .accounts({
-          envelope: lifafaPDA,
-          signer: oktoWalletPublicKey,
-          systemProgram: SystemProgram.programId,
-        })
-        .instruction();
-      const txn = new Transaction().add(instruction);
-      const blockhash = await connection.getLatestBlockhash();
-      txn.recentBlockhash = blockhash.blockhash;
-      txn.feePayer = oktoWalletPublicKey;
-      console.log("Transaction", txn);
+    const instruction = await program.methods
+      .createEnvelope(
+        new anchor.BN(id),
+        new anchor.BN(amount * LAMPORTS_PER_SOL),
+        new anchor.BN(timeLimit),
+        maxClaims,
+        ownerName
+      )
+      .accounts({
+        envelope: lifafaPDA,
+        signer: walletPublicKey,
+        systemProgram: SystemProgram.programId,
+      })
+      .instruction();
+    const txn = new Transaction().add(instruction);
+    txn.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+    txn.feePayer = walletPublicKey;
 
-      const fee = await estimateTransactionFee(txn);
-      console.log("fee: ", fee / LAMPORTS_PER_SOL);
+    const fee = await estimateTransactionFee(txn);
 
-      // const signedTxn = await anchorWallet?.signTransaction(txn);
-      // const serialized = signedTxn?.serialize();
-      // if (serialized) {
-      //   const txnHash = await connection.sendRawTransaction(serialized);
-      //   await confirmHash(txnHash);
-      // }
-    } catch (error) {
-      console.error("Error creating lifafa: ", error);
-    }
+    const rawTxn = solanaTransaction(
+      txn,
+      [walletPublicKey.toString()],
+      network
+    );
+    return {
+      rawTxn,
+      fee,
+    };
   }
 
   async function claimLifafa(id: any) {
@@ -150,14 +148,14 @@ export function useRedEnvelopeProgram(
         .claim(new anchor.BN(id))
         .accounts({
           envelope: lifafaPDA,
-          signer: oktoWalletPublicKey,
+          signer: walletPublicKey,
           systemProgram: SystemProgram.programId,
         })
         .instruction();
       const txn = new Transaction().add(instruction);
       const blockhash = await connection.getLatestBlockhash();
       txn.recentBlockhash = blockhash.blockhash;
-      txn.feePayer = oktoWalletPublicKey;
+      txn.feePayer = walletPublicKey;
 
       // const signedTxn = await anchorWallet?.signTransaction(txn);
       // const serialized = signedTxn?.serialize();

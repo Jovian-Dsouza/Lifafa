@@ -4,15 +4,17 @@ import { useRedEnvelopeProgram } from "../hooks/useRedEnvelopeProgram";
 import { useConnection } from "../providers/ConnectionProvider";
 import { useEffect } from "react";
 import { Button } from "react-native";
+import { useOkto } from "okto-sdk-react-native";
+import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 
 function getRandomId() {
   return Math.floor(Math.random() * 10000000);
 }
 
 export default function ContractTestScreen() {
-  const { connection } = useConnection();
+  const { executeRawTransactionWithJobStatus } = useOkto();
   const { redEnvelopeProgram, createLifafa, fetchLifafa } =
-    useRedEnvelopeProgram(connection);
+    useRedEnvelopeProgram();
   const [id, setId] = useState(getRandomId());
 
   return (
@@ -25,7 +27,17 @@ export default function ContractTestScreen() {
           disabled={!redEnvelopeProgram}
           onPress={async () => {
             const tmpId = getRandomId();
-            createLifafa(tmpId, 0.01, 1000, 2, "jovian");
+            const { rawTxn, fee } = await createLifafa(
+              tmpId,
+              0.01,
+              1000,
+              2,
+              "jovian"
+            );
+            console.log("fee: ", fee / LAMPORTS_PER_SOL);
+            // TODO: Maybe update the recent blockhash
+            const result = await executeRawTransactionWithJobStatus(rawTxn);
+            console.log(result);
             setId(tmpId);
           }}
         />
