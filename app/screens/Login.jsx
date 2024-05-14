@@ -5,6 +5,8 @@ import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import { useState } from "react";
 import { GOOGLE_WEB_CLIENT_ID, GOOGLE_ANDROID_CLIENT_ID } from "@env";
 import { useOkto } from "okto-sdk-react-native";
+import { storeLocalStorage } from "../utils/storage";
+import { USER_NAME_LOCAL_STORAGE_KEY } from "../constants";
 
 GoogleSignin.configure({
   webClientId: GOOGLE_WEB_CLIENT_ID,
@@ -28,12 +30,11 @@ function LoginIn() {
     try {
       const response = await GoogleLogin();
       const { idToken, user } = response;
-      console.log("idToken: ", idToken);
-      console.log("user: ", user);
+      // console.log("user: ", user);
+      storeLocalStorage(USER_NAME_LOCAL_STORAGE_KEY, user.name)
       if (idToken) {
         authenticate(idToken, (result, error) => {
           if (result) {
-            // const wallet: Wallet[] = JSON.parse(result);
             console.log(result);
           }
           if (error) {
@@ -43,9 +44,7 @@ function LoginIn() {
       }
     } catch (apiError) {
       console.error("error", apiError.message);
-      // setError(
-      //   apiError?.response?.data?.error?.message || 'Something went wrong',
-      // );
+
     } finally {
       setLoading(false);
     }

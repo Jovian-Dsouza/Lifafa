@@ -10,6 +10,7 @@ import { Buffer } from "buffer";
 import { ClusterProvider } from "./app/providers/ClusterProvider";
 import { ConnectionProvider } from "./app/providers/ConnectionProvider";
 import { WalletProvider } from "./app/providers/WalletProvider";
+import { AppContextProvider } from "./app/providers/AppContextProvider";
 
 global.Buffer = Buffer;
 global.TextEncoder = require("text-encoding").TextEncoder;
@@ -41,9 +42,11 @@ export default function App() {
       <ClusterProvider defaultClusterName="devnet">
         <ConnectionProvider>
           <WalletProvider>
-            <NavigationContainer>
-              <Navigation />
-            </NavigationContainer>
+            <AppContextProvider>
+              <NavigationContainer>
+                <Navigation />
+              </NavigationContainer>
+            </AppContextProvider>
           </WalletProvider>
         </ConnectionProvider>
       </ClusterProvider>
