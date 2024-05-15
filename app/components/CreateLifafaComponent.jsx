@@ -25,6 +25,12 @@ export const CreateLifafaComponent = () => {
   const { user } = useAppContext();
   const [selectedToken, setSelectedToken] = useState(tokens[0]);
   const fee = "0.0005"; //TODO remove this
+  const timeLeft = useMemo(() => {
+    if (time) {
+      return dayjs(time).diff(dayjs(), "second");
+    }
+    return 0;
+  }, [time]);
 
   // useEffect(() => {
   //   console.log(`user: ${user}`)
@@ -39,7 +45,7 @@ export const CreateLifafaComponent = () => {
     const createLifafaData = {
       id: getRandomId(),
       amount: Number(amount),
-      timeleft: dayjs(time).diff(dayjs(), "second"),
+      timeleft: timeLeft,
       maxClaims: Number(maxClaims),
       ownerName: user,
       desc: desc,
@@ -99,8 +105,15 @@ export const CreateLifafaComponent = () => {
       />
 
       <EnvelopeModal
+        amount={amount}
+        tokenSymbol={selectedToken.symbol}
+        tokenIcon={selectedToken.icon}
+        timeLeft={timeLeft}
+        maxClaims={maxClaims}
         visible={envelopeModalVisible}
         setVisible={setEnvelopModalVisible}
+        onCopyLink={() => {}}
+        onShare={() => {}}
       />
     </View>
   );

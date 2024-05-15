@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { View, Text, Modal, TouchableOpacity, Image } from "react-native";
 import { Envelope } from "./Envelope";
 import {
@@ -7,9 +7,25 @@ import {
   ClockIcon,
 } from "react-native-heroicons/outline";
 import { StatusBar } from "expo-status-bar";
-import { images } from "../assets/assets";
 
-export function EnvelopeModal({ visible, setVisible }) {
+export function EnvelopeModal({
+  amount,
+  tokenSymbol,
+  tokenIcon,
+  timeLeft,
+  maxClaims,
+  visible,
+  setVisible,
+  onCopyLink,
+  onShare,
+}) {
+  const numDaysLeft = useMemo(() => {
+    if (timeLeft > 0) {
+      return Math.ceil(timeLeft / (60 * 60 * 24)); // Convert seconds to days
+    }
+    return 0;
+  }, [timeLeft]);
+
   function close() {
     setVisible(false);
   }
@@ -35,21 +51,22 @@ export function EnvelopeModal({ visible, setVisible }) {
             <View className="flex-1  items-center text-center px-8 py-4 space-y-2">
               <Text className="text-[#F2F2F2] text-xs">Lifafa Created!</Text>
               <View className="flex-row items-center justify-center space-x-2">
-                <Image
-                  source={images.tokens.usdc}
-                  className="rounded-full w-8 h-8"
-                />
+                <Image source={tokenIcon} className="rounded-full w-8 h-8" />
                 <Text className="text-[#F2F2F2] font-bold text-2xl">
-                  50 USDC
+                  {amount} {tokenSymbol}
                 </Text>
               </View>
 
               <View className="flex-row items-center justify-center space-x-2">
                 <ClockIcon fill="#601BD4" color="white" size={18} />
-                <Text className="text-[#F2F2F2] text-xs">12 days</Text>
+                <Text className="text-[#F2F2F2] text-xs">
+                  {numDaysLeft} days
+                </Text>
                 <View className="bg-[#F2F2F2] p-0.5 rounded-full" />
                 <UsersIcon fill="#601BD4" color="white" size={18} />
-                <Text className="text-[#F2F2F2] text-xs">100</Text>
+                <Text className="text-[#F2F2F2] text-xs">
+                  {maxClaims ? maxClaims : 0}
+                </Text>
               </View>
             </View>
           </Envelope>
@@ -58,6 +75,7 @@ export function EnvelopeModal({ visible, setVisible }) {
           <TouchableOpacity
             className="bg-white  w-[30%] py-2 rounded-full"
             onPress={() => {
+              onCopyLink();
               close();
             }}
           >
@@ -69,6 +87,7 @@ export function EnvelopeModal({ visible, setVisible }) {
           <TouchableOpacity
             className="bg-white  w-[30%] py-2 rounded-full"
             onPress={() => {
+              onShare();
               close();
             }}
           >
