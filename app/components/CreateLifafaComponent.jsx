@@ -24,6 +24,7 @@ export const CreateLifafaComponent = () => {
   const [id, setId] = useState();
   const { user } = useAppContext();
   const [selectedToken, setSelectedToken] = useState(tokens[0]);
+  const fee = "0.0005"; //TODO remove this
 
   // useEffect(() => {
   //   console.log(`user: ${user}`)
@@ -88,6 +89,9 @@ export const CreateLifafaComponent = () => {
       {/* Modals */}
       {/* TODO: Pass in the fees and amount and token */}
       <TransactionRequestModal
+        amount={amount}
+        symbol={selectedToken.symbol}
+        fee={fee}
         visible={transactionModalVisible}
         setVisible={setTransactionModalVisible}
         onAccept={handleConfirm}

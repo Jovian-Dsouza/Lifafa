@@ -13,6 +13,9 @@ import { images } from "../assets/assets";
 import { ShieldCheckIcon } from "react-native-heroicons/outline";
 
 export function TransactionRequestModal({
+  amount,
+  symbol,
+  fee,
   visible,
   setVisible,
   onAccept,
@@ -67,13 +70,13 @@ export function TransactionRequestModal({
                   Create a Lifafa with
                 </Text>
                 <Text className="text-[#161616] text-lg font-semibold">
-                  50 USDT
+                  {amount} {symbol}
                 </Text>
               </View>
               <View className="flex-row items-center justify-between py-4 px-4">
                 <Text className="text-[#707070]">
                   Fees:{" "}
-                  <Text className="text-[#161616]">$0.5 (0.006 USDT)</Text>
+                  <Text className="text-[#161616]">{fee} {symbol}</Text>
                 </Text>
                 <Text className="text-blue-500">Show ▼</Text>
               </View>
