@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from "react";
-import { View, Text } from "react-native";
+import { View, Text, Share } from "react-native";
 import dayjs from "dayjs";
 import { MultilineTextInput } from "./MultilineTextInput";
 import { TransactionRequestModal } from "./TransactionRequestModal";
@@ -58,6 +58,28 @@ export const CreateLifafaComponent = () => {
     setEnvelopModalVisible(true);
   }
 
+  async function handleShare() {
+    try {
+      const result = await Share.share({
+        title: "Lifafa",
+        message:
+          "Please install this app and stay safe , AppLink :https://lifafa.com?id=id",
+        url: "https://lifafa.com?id=id",
+      });
+      if (result.action === Share.sharedAction) {
+        if (result.activityType) {
+          // shared with activity type of result.activityType
+        } else {
+          // shared
+        }
+      } else if (result.action === Share.dismissedAction) {
+        // dismissed
+      }
+    } catch (error) {
+      alert(error.message);
+    }
+  }
+
   return (
     <View className="min-w-full bg-[#F5F6FE] my-6 rounded-3xl p-4 shadow">
       <View className="flex-row justify-between items-center mb-4">
@@ -113,7 +135,7 @@ export const CreateLifafaComponent = () => {
         visible={envelopeModalVisible}
         setVisible={setEnvelopModalVisible}
         onCopyLink={() => {}}
-        onShare={() => {}}
+        onShare={handleShare}
       />
     </View>
   );
