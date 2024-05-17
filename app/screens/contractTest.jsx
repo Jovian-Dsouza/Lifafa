@@ -6,10 +6,7 @@ import { useEffect } from "react";
 import { Button } from "react-native";
 import { useOkto } from "okto-sdk-react-native";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
-
-function getRandomId() {
-  return Math.floor(Math.random() * 10000000);
-}
+import { getRandomId } from "../utils/random";
 
 export default function ContractTestScreen() {
   const { executeRawTransactionWithJobStatus } = useOkto();
