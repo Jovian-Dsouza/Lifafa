@@ -1,12 +1,13 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { StatusBar } from "expo-status-bar";
-import { Pressable, View, Text, Button } from "react-native";
-import { GoogleSignin } from "@react-native-google-signin/google-signin";
+import { View, Text, Image } from "react-native";
+import { GoogleSignin, GoogleSigninButton } from "@react-native-google-signin/google-signin";
 import { useState } from "react";
 import { GOOGLE_WEB_CLIENT_ID, GOOGLE_ANDROID_CLIENT_ID } from "@env";
 import { useOkto } from "okto-sdk-react-native";
 import { storeLocalStorage } from "../utils/storage";
 import { USER_NAME_LOCAL_STORAGE_KEY } from "../constants";
+import { images } from "../assets/assets";
 
 GoogleSignin.configure({
   webClientId: GOOGLE_WEB_CLIENT_ID,
@@ -20,7 +21,7 @@ const GoogleLogin = async () => {
   return userInfo;
 };
 
-function LoginIn() {
+function LoginIn({ navigation }) {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const { authenticate, showWidgetSheet } = useOkto();
@@ -30,12 +31,12 @@ function LoginIn() {
     try {
       const response = await GoogleLogin();
       const { idToken, user } = response;
-      // console.log("user: ", user);
       storeLocalStorage(USER_NAME_LOCAL_STORAGE_KEY, user.name)
       if (idToken) {
         authenticate(idToken, (result, error) => {
           if (result) {
-            console.log(result);
+            console.log("Okto Authenticate:", result);
+            navigation.navigate('Home')
           }
           if (error) {
             console.error("Okto wallet login failure: ", error);
@@ -44,30 +45,20 @@ function LoginIn() {
       }
     } catch (apiError) {
       console.error("error", apiError.message);
-
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    console.log("Google android client id: ", GOOGLE_ANDROID_CLIENT_ID);
-  }, []);
-
   return (
     <View className="flex-1 items-center justify-center bg-white">
-      <Text className="text-xl font-bold mb-3">Okto API App</Text>
       <StatusBar style="auto" />
-      <View>
-        <Button title="Google Sign In" onPress={handleGoogleLogin} />
-      </View>
-      <View className="p-2" />
-      <Button
-        title="Open Okto Profile"
-        onPress={() => {
-          showWidgetSheet();
-        }}
-      />
+      <Image source={images.okto} className="w-20 h-20 mb-5" />
+      {loading ? (
+        <Text>Trying to Login ....</Text>
+      ) : (
+        <GoogleSigninButton onPress={handleGoogleLogin} />
+      )}
     </View>
   );
 }
