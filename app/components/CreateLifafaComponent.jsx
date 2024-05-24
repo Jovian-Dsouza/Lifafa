@@ -60,11 +60,12 @@ export const CreateLifafaComponent = () => {
 
   async function handleShare() {
     try {
+      const url = `lifafa://Redeem/${id}`;
       const result = await Share.share({
         title: "Lifafa",
         message:
-          "Please install this app and stay safe , AppLink :https://lifafa.com?id=id",
-        url: "https://lifafa.com?id=id",
+          `Please install this app and stay safe , AppLink: ${url}`,
+        url: url,
       });
       if (result.action === Share.sharedAction) {
         if (result.activityType) {

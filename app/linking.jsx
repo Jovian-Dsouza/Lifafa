@@ -6,8 +6,14 @@ const config = {
     ContractTestScreen: {
       path: "ContractTestScreen/:id",
       parse: {
-        id: id => `${id}`,
-      }
+        id: (id) => `${id}`,
+      },
+    },
+    Redeem: {
+      path: "Redeem/:id",
+      parse: {
+        id: (id) => `${id}`,
+      },
     },
   },
 };
