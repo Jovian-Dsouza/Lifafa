@@ -11,6 +11,7 @@ import { ClusterProvider } from "./app/providers/ClusterProvider";
 import { ConnectionProvider } from "./app/providers/ConnectionProvider";
 import { WalletProvider } from "./app/providers/WalletProvider";
 import { AppContextProvider } from "./app/providers/AppContextProvider";
+import { linking } from "./app/linking";
 
 global.Buffer = Buffer;
 global.TextEncoder = require("text-encoding").TextEncoder;
@@ -43,7 +44,7 @@ export default function App() {
         <ConnectionProvider>
           <WalletProvider>
             <AppContextProvider>
-              <NavigationContainer>
+              <NavigationContainer linking={linking}>
                 <Navigation />
               </NavigationContainer>
             </AppContextProvider>

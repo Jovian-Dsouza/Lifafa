@@ -8,7 +8,8 @@ import { useOkto } from "okto-sdk-react-native";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { getRandomId } from "../utils/random";
 
-export default function ContractTestScreen() {
+export default function ContractTestScreen({ route }) {
+  const { id: routeId } = route.params 
   const { executeRawTransactionWithJobStatus } = useOkto();
   const { redEnvelopeProgram, createLifafa, fetchLifafa } =
     useRedEnvelopeProgram();
@@ -57,6 +58,7 @@ export default function ContractTestScreen() {
         />
         <View style={styles.button} />
         <Text className="text-lg font-semibold">Lifafa ID: {id}</Text>
+        <Text className="text-lg font-semibold">Route ID: {routeId}</Text>
       </View>
     </View>
   );
