@@ -12,6 +12,7 @@ import { ConnectionProvider } from "./app/providers/ConnectionProvider";
 import { WalletProvider } from "./app/providers/WalletProvider";
 import { AppContextProvider } from "./app/providers/AppContextProvider";
 import { linking } from "./app/linking";
+import { LogBox } from "react-native";
 
 global.Buffer = Buffer;
 global.TextEncoder = require("text-encoding").TextEncoder;
@@ -36,6 +37,8 @@ const webCrypto = typeof crypto !== "undefined" ? crypto : new Crypto();
 NativeWindStyleSheet.setOutput({
   default: "native",
 });
+
+LogBox.ignoreLogs(["ReactImageView:"]);
 
 export default function App() {
   return (
