@@ -99,7 +99,7 @@ export function Envelope({ children, isOpen, onPress }) {
   return (
     <View className="h-56 w-full justify-end">
       <TouchableOpacity activeOpacity={1} className="w-64" onPress={onPress}>
-        <View className="absolute top-16 left-0 w-full h-16 bg-[#C5B0FF]"></View>
+        <View className={`absolute top-16 left-0 w-full h-16 bg-[#C5B0FF] ${isOpen ? "rounded-none" : "rounded-md"}`}></View>
         <Flap isOpen={isOpen} flapRotation={flapRotation} />
         <View className="w-full items-center">
           <Letter letterPosition={letterPosition} letterOpacity={letterOpacity}>
