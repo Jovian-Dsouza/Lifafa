@@ -1,9 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Layout } from "../components/Layout";
 import { EnvelopeRedeem } from "../components/EnvelopeRedeem";
 import { View, TouchableOpacity, Text } from "react-native";
 import { images } from "../assets/assets";
 import { TransactionRequestModal } from "../components/TransactionRequestModal";
+import { useLifafaProgram } from "../hooks/useLifafaProgram";
+import { useOkto } from "okto-sdk-react-native";
+import { LAMPORTS_PER_SOL } from "@solana/web3.js";
+import dayjs from "dayjs";
+import { useWallet } from "../providers/WalletProvider";
 
 const LifafaStatus = ({ numDaysLeft, claims, disabled, onOpen }) => {
   return (
@@ -55,20 +60,85 @@ const LifafaActions = () => {
 };
 
 function Redeem({ route }) {
-  const [id, setId] = useState();
+  const { executeRawTransactionWithJobStatus } = useOkto();
+  const { lifafaProgram, claimLifafa, fetchLifafa } = useLifafaProgram();
+  const { wallet, getBalance } = useWallet();
+  const [id, setId] = useState("9254544");
   const [isOpen, setIsOpen] = useState(false);
   const [transactionModalVisible, setTransactionModalVisible] = useState(false);
+  const [lifafaData, setLifafaData] = useState();
   const amount = 2;
-  const tokenSymbol = "USDC";
-  const tokenIcon = images.tokens.usdc;
-  const disabled = false;
-  const numDaysLeft = 9;
-  const claims = 3;
-  const ownerName = "Jovian";
-  const fee = "0.0005"; //TODO
+  const disabled = !lifafaProgram;
+  const [txnData, setTxnData] = useState();
+  const [initialBalance, setInitialBalance] = useState(0);
+  const [finalBalance, setFinalBalance] = useState(0);
 
-  function handleConfirm() {
-    setIsOpen(true);
+  const fee = useMemo(() => {
+    if (txnData) {
+      return txnData.fee;
+    }
+    return "0";
+  }, [txnData]);
+
+  async function getLifafaData() {
+    if (!id) {
+      setLifafaData(null);
+    }
+    try {
+      const pdaData = await fetchLifafa(id);
+      // console.log("pdaData: ", pdaData);
+      const remainingClaims = pdaData.maxClaims - pdaData.claimed.length;
+      const expiryTime = dayjs.unix(
+        Number(pdaData.creationTime) + Number(pdaData.timeLimit)
+      );
+      const daysLeft = expiryTime.diff(dayjs(), "day");
+      const lifafaDataTmp = {
+        id: id,
+        amount: Number(pdaData.amount / LAMPORTS_PER_SOL),
+        claims: remainingClaims,
+        numDaysLeft: daysLeft,
+        ownerName: pdaData.ownerName,
+        desc: pdaData.desc,
+        tokenSymbol: "SOL", //TODO
+        tokenIcon: images.tokens.sol,
+      };
+      setLifafaData(lifafaDataTmp);
+    } catch (error) {
+      console.log("getLifafaData: ", error);
+      setLifafaData(null);
+    }
+  }
+
+  async function handleClaim() {
+    setTransactionModalVisible(true);
+    try {
+      const balance = await getBalance(lifafaData.tokenSymbol);
+      const txnDataTmp = await claimLifafa(id);
+      setTxnData(txnDataTmp);
+      setInitialBalance(Number(balance));
+    } catch (error) {
+      console.error("create Lifafa: ", error);
+    }
+  }
+
+  async function handleConfirm() {
+    try {
+      const result = await executeRawTransactionWithJobStatus(txnData.rawTxn);
+      console.log(result);
+      if (result.status === "SUCCESS") {
+        const balance = await getBalance(lifafaData.tokenSymbol);
+        setFinalBalance(Number(balance));
+        setIsOpen(true);
+      } //TODO: handle else case
+      else {
+        alert("Transaction Failed!");
+      }
+    } catch (error) {
+      console.error("handleConfirm: ", error);
+      alert("Transaction Failed!");
+    } finally {
+      setTransactionModalVisible(false);
+    }
   }
 
   useEffect(() => {
@@ -76,20 +146,48 @@ function Redeem({ route }) {
       console.log("id = ", route.params.id);
       setId(route.params.id);
     }
+    console.log("Id: ", id);
   }, [route]);
+
+  useEffect(() => {
+    if (wallet && id) {
+      getLifafaData();
+    }
+  }, [id, wallet]);
+
+  useEffect(() => {
+    console.log("lifafaData: ", lifafaData);
+  }, [lifafaData]);
+
+  useEffect(()=>{
+    console.log("initial balance", initialBalance)
+    console.log("Final balance", finalBalance)
+    console.log("Claimed amount: ", finalBalance - initialBalance)
+  }, [finalBalance])
+  if (!lifafaData) {
+    return (
+      <Layout>
+        <View className="justify-center items-center w-full mt-24">
+          <Text className="font-bold text-xl">Loading ...</Text>
+        </View>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
       <EnvelopeRedeem
         isOpen={isOpen}
         setIsOpen={setIsOpen}
-        amount={amount}
-        tokenSymbol={tokenSymbol}
-        tokenIcon={tokenIcon}
+        amount={finalBalance - initialBalance}
+        tokenSymbol={lifafaData.tokenSymbol}
+        tokenIcon={lifafaData.tokenIcon}
       />
 
       <View className="flex-1 justify-center space-y-3 w-full mt-24">
-        <Text className="text-sm text-[#707070]">From {ownerName}</Text>
+        <Text className="text-sm text-[#707070]">
+          From {lifafaData.ownerName}
+        </Text>
         <Text className="text-2xl text-black font-bold">
           Best wishes, hope you win!
         </Text>
@@ -98,18 +196,17 @@ function Redeem({ route }) {
           <LifafaActions />
         ) : (
           <LifafaStatus
-            numDaysLeft={numDaysLeft}
-            claims={claims}
+            numDaysLeft={lifafaData.numDaysLeft}
+            claims={lifafaData.claims}
             disabled={disabled}
-            onOpen={() => setTransactionModalVisible(true)}
+            onOpen={handleClaim}
           />
         )}
       </View>
 
       {/* TODO: Pass in the fees and amount and token */}
       <TransactionRequestModal
-        amount={amount}
-        symbol={tokenSymbol}
+        symbol={lifafaData.tokenSymbol}
         fee={fee}
         visible={transactionModalVisible}
         setVisible={setTransactionModalVisible}

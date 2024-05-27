@@ -66,17 +66,29 @@ export function TransactionRequestModal({
             </Text>
             <View className="mt-6 border border-[#F5F6FE] rounded-xl">
               <View className="bg-[#F5F6FE] py-6 px-4 rounded-xl">
-                <Text className="text-[#707070] mb-2">
-                  Create a Lifafa with
-                </Text>
-                <Text className="text-[#161616] text-lg font-semibold">
-                  {amount} {symbol}
-                </Text>
+                {amount ? (
+                  <View>
+                    <Text className="text-[#707070] mb-2">
+                      Create a Lifafa with
+                    </Text>
+                    <Text className="text-[#161616] text-lg font-semibold">
+                      {amount} {symbol}
+                    </Text>
+                  </View>
+                ) : (
+                  <View>
+                    <Text className="text-[#707070] mb-2">
+                      Claim Lifafa
+                    </Text>
+                  </View>
+                )}
               </View>
               <View className="flex-row items-center justify-between py-4 px-4">
                 <Text className="text-[#707070]">
                   Fees:{" "}
-                  <Text className="text-[#161616]">{fee} {symbol}</Text>
+                  <Text className="text-[#161616]">
+                    {fee} {symbol}
+                  </Text>
                 </Text>
                 <Text className="text-blue-500">Show ▼</Text>
               </View>

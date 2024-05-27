@@ -14,9 +14,13 @@ export const WalletContext = createContext();
 export function WalletProvider({ children }) {
   const [wallet, setWallet] = useState();
   const { selectedCluster } = useCluster();
-  const { getWallets } = useOkto();
+  const { getWallets, getPortfolio } = useOkto();
   const network = useMemo(
     () => `SOLANA_${selectedCluster.name.toUpperCase()}`,
+    [selectedCluster]
+  );
+  const network_name = useMemo(
+    () => selectedCluster.name.toUpperCase(),
     [selectedCluster]
   );
 
@@ -40,6 +44,17 @@ export function WalletProvider({ children }) {
     }
   }
 
+  async function getBalance(token_symbol) {
+    const portfolio = await getPortfolio();
+    const tokenDetail = portfolio["tokens"].find(
+      (x) => x.token_name === `${token_symbol}_${network_name}`
+    );
+    if (tokenDetail) {
+      return tokenDetail.quantity;
+    }
+    return 0;
+  }
+
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       getWalletForSelectedCluster();
@@ -57,7 +72,13 @@ export function WalletProvider({ children }) {
 
   return (
     <WalletContext.Provider
-      value={{ wallet, walletPublicKey, network, getWalletForSelectedCluster }}
+      value={{
+        wallet,
+        walletPublicKey,
+        network,
+        getWalletForSelectedCluster,
+        getBalance,
+      }}
     >
       {children}
     </WalletContext.Provider>

@@ -42,9 +42,10 @@ export function useLifafaProgram() {
     try {
       const [lifafaPDA] = getLifafaPDA(id);
       const lifafaAccount = await program.account.lifafa.fetch(lifafaPDA);
-      console.log("LifafaAccount ", lifafaAccount);
+      return lifafaAccount;
     } catch (error) {
       console.error("Error fetchLifafa:", error);
+      return null;
     }
   }
 

@@ -7,7 +7,7 @@ import { useWallet } from "../providers/WalletProvider";
 function TokenBalance({ token }) {
   const { getPortfolio } = useOkto();
   const { selectedCluster } = useCluster();
-  const { wallet } = useWallet();
+  const { wallet, getBalance: getOktoBalance } = useWallet();
   const [balance, setBalance] = useState(0);
 
   const network_name = useMemo(
@@ -16,17 +16,8 @@ function TokenBalance({ token }) {
   );
 
   async function getBalance() {
-    const portfolio = await getPortfolio();
-    //console.log(portfolio);
-    const tokenDetail = portfolio["tokens"].find(
-      (x) => x.token_name === `${token.symbol}_${network_name}`
-    );
-    if (tokenDetail) {
-      //console.log(tokenDetail);
-      setBalance(tokenDetail.quantity);
-      return;
-    }
-    setBalance(0);
+    const balanceTmp = await getOktoBalance(token.symbol);
+    setBalance(balanceTmp);
   }
 
   useEffect(() => {
