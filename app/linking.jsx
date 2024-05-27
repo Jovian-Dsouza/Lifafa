@@ -19,6 +19,6 @@ const config = {
 };
 
 export const linking = {
-  prefixes: ["lifafa://"],
+  prefixes: ["lifafa://", "https://lifafa-okto.vercel.app"],
   config,
 };

@@ -8,7 +8,7 @@ import { EnvelopeModal } from "./EnvelopeModal";
 import { getRandomId } from "../utils/random";
 import { useAppContext } from "../providers/AppContextProvider";
 import { TokenSelector } from "./TokenSelector";
-import { tokens } from "../constants";
+import { BASE_URL, tokens } from "../constants";
 import { AmountInput } from "./AmountInput";
 import { MaxClaimsInput } from "./MaxClaimsInput";
 import { DatePicker } from "./DatePicker";
@@ -105,7 +105,7 @@ export const CreateLifafaComponent = () => {
 
   async function handleShare() {
     try {
-      const url = `lifafa://Redeem/${id}`;
+      const url = `${BASE_URL}/Redeem/${id}`;
       const result = await Share.share({
         title: "Lifafa",
         message: `Hey there! I've created a Lifafa for you. Click on the link below to redeem it:\n\n${url}`,
@@ -127,7 +127,7 @@ export const CreateLifafaComponent = () => {
 
   async function handleCopyLink() {
     try {
-      const url = `lifafa://Redeem/${id}`;
+      const url = `${BASE_URL}/Redeem/${id}`;
       Clipboard.setString(url);
     } catch (error) {
       console.error("handleCopy: ", error);

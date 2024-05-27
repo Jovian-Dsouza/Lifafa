@@ -1,5 +1,7 @@
 import { images } from "./assets/assets";
 
+export const BASE_URL = "https://lifafa-okto.vercel.app";
+
 export const USER_NAME_LOCAL_STORAGE_KEY = "USER_NAME_LOCAL_STORAGE_KEY";
 
 export const tokens = [
