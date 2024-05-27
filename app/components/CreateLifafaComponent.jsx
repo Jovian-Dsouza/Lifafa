@@ -63,8 +63,7 @@ export const CreateLifafaComponent = () => {
       const url = `lifafa://Redeem/${id}`;
       const result = await Share.share({
         title: "Lifafa",
-        message:
-          `Please install this app and stay safe , AppLink: ${url}`,
+        message: `Hey there! I've created a Lifafa for you. Click on the link below to redeem it:\n\n${url}`,
         url: url,
       });
       if (result.action === Share.sharedAction) {
@@ -78,6 +77,15 @@ export const CreateLifafaComponent = () => {
       }
     } catch (error) {
       alert(error.message);
+    }
+  }
+
+  async function handleCopyLink() {
+    try {
+      const url = `lifafa://Redeem/${id}`;
+      Clipboard.setString(url);
+    } catch (error) {
+      console.error("handleCopy: ", error);
     }
   }
 
