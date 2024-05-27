@@ -35,13 +35,17 @@ export function WalletProvider({ children }) {
       }
       setWallet(solanaWallet);
     } catch (error) {
-      console.error(error);
+      console.log("getWalletForSelectedCluster: ", error);
       setWallet(null);
     }
   }
 
   useEffect(() => {
-    getWalletForSelectedCluster();
+    const timeoutId = setTimeout(() => {
+      getWalletForSelectedCluster();
+    }, 1000); // 1000 milliseconds = 1 second
+
+    return () => clearTimeout(timeoutId); 
   }, [selectedCluster]);
 
   const walletPublicKey = useMemo(() => {
@@ -52,7 +56,9 @@ export function WalletProvider({ children }) {
   }, [wallet]);
 
   return (
-    <WalletContext.Provider value={{ wallet, walletPublicKey, network }}>
+    <WalletContext.Provider
+      value={{ wallet, walletPublicKey, network, getWalletForSelectedCluster }}
+    >
       {children}
     </WalletContext.Provider>
   );

@@ -2,10 +2,12 @@ import { useOkto } from "okto-sdk-react-native";
 import React, { useEffect, useMemo, useState } from "react";
 import { Text } from "react-native";
 import { useCluster } from "../providers/ClusterProvider";
+import { useWallet } from "../providers/WalletProvider";
 
 function TokenBalance({ token }) {
   const { getPortfolio } = useOkto();
   const { selectedCluster } = useCluster();
+  const { wallet } = useWallet();
   const [balance, setBalance] = useState(0);
 
   const network_name = useMemo(
@@ -28,8 +30,10 @@ function TokenBalance({ token }) {
   }
 
   useEffect(() => {
-    getBalance();
-  }, [token, network_name]);
+    if (wallet) {
+      getBalance();
+    }
+  }, [token, network_name, wallet]);
 
   return (
     <Text className="text-[#707070] text-xs">

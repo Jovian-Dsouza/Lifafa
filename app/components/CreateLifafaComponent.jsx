@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from "react";
+import Clipboard from "@react-native-clipboard/clipboard";
 import { View, Text, Share } from "react-native";
 import dayjs from "dayjs";
 import { MultilineTextInput } from "./MultilineTextInput";
@@ -13,8 +14,12 @@ import { MaxClaimsInput } from "./MaxClaimsInput";
 import { DatePicker } from "./DatePicker";
 import { CreateButton } from "./CreateButton";
 import TokenBalance from "./TokenBalance";
+import { useLifafaProgram } from "../hooks/useLifafaProgram";
+import { useOkto } from "okto-sdk-react-native";
 
 export const CreateLifafaComponent = () => {
+  const { executeRawTransactionWithJobStatus } = useOkto();
+  const { lifafaProgram, createLifafa } = useLifafaProgram();
   const [amount, setAmount] = useState("0");
   const [maxClaims, setMaxClaims] = useState("");
   const [time, setTime] = useState();
@@ -24,7 +29,13 @@ export const CreateLifafaComponent = () => {
   const [id, setId] = useState();
   const { user } = useAppContext();
   const [selectedToken, setSelectedToken] = useState(tokens[0]);
-  const fee = "0.0005"; //TODO remove this
+  const [txnData, setTxnData] = useState();
+  const fee = useMemo(() => {
+    if (txnData) {
+      return txnData.fee;
+    }
+    return "0";
+  }, [txnData]);
   const timeLeft = useMemo(() => {
     if (time) {
       return dayjs(time).diff(dayjs(), "second");
@@ -37,10 +48,16 @@ export const CreateLifafaComponent = () => {
   // }, [user])
 
   const isCreateDisabled = useMemo(() => {
-    return amount === "0" || maxClaims === "" || desc === "" || time === null;
+    return (
+      amount === "0" ||
+      maxClaims === "" ||
+      desc === "" ||
+      time === null ||
+      !lifafaProgram
+    );
   }, [amount, maxClaims, time, desc]);
 
-  function handleCreate() {
+  async function handleCreate() {
     setTransactionModalVisible(true);
     const createLifafaData = {
       id: getRandomId(),
@@ -51,11 +68,39 @@ export const CreateLifafaComponent = () => {
       desc: desc,
     };
     console.log("CreateLifafaData: ", createLifafaData);
-    setId(createLifafaData.id);
+    try {
+      const txnDataTmp = await createLifafa(
+        createLifafaData.id,
+        createLifafaData.amount,
+        createLifafaData.timeleft,
+        createLifafaData.maxClaims,
+        createLifafaData.ownerName,
+        createLifafaData.desc
+      );
+      setTxnData(txnDataTmp);
+      setId(createLifafaData.id);
+    } catch (error) {
+      console.error("create Lifafa: ", error);
+    }
   }
 
-  function handleConfirm() {
-    setEnvelopModalVisible(true);
+  async function handleConfirm() {
+    try {
+      const result = await executeRawTransactionWithJobStatus(txnData.rawTxn);
+      console.log(result);
+      if (result.status === "SUCCESS") {
+        setEnvelopModalVisible(true);
+      } //TODO: handle else case
+      else{
+        alert("Transaction Failed!");
+      }
+    } catch (error) {
+      console.error("handleConfirm: ", error);
+      alert("Transaction Failed!")
+    }
+    finally {
+      setTransactionModalVisible(false);
+    }
   }
 
   async function handleShare() {
@@ -143,7 +188,7 @@ export const CreateLifafaComponent = () => {
         maxClaims={maxClaims}
         visible={envelopeModalVisible}
         setVisible={setEnvelopModalVisible}
-        onCopyLink={() => {}}
+        onCopyLink={handleCopyLink}
         onShare={handleShare}
       />
     </View>
