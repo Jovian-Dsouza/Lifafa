@@ -7,8 +7,17 @@ import { Layout } from "../components/Layout";
 import { CreateLifafaComponent } from "../components/CreateLifafaComponent";
 import { EnvelopeHome } from "../components/EnvelopeHome";
 import { ViewEnvelopesComponent } from "../components/ViewEnvelopesComponent";
+import { useWallet } from "../providers/WalletProvider";
 
-function Home() {
+function Home({ navigation }) {
+  const { isLoggedIn } = useWallet();
+
+  useEffect(()=>{
+    if(!isLoggedIn){
+      navigation.navigate("Login")
+    }
+  }, [isLoggedIn])
+
   return (
     <Layout>
       <EnvelopeHome />

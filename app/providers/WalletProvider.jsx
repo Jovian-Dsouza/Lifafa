@@ -12,6 +12,7 @@ import { PublicKey } from "@solana/web3.js";
 export const WalletContext = createContext();
 
 export function WalletProvider({ children }) {
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
   const [wallet, setWallet] = useState();
   const { selectedCluster } = useCluster();
   const { getWallets, getPortfolio } = useOkto();
@@ -38,9 +39,11 @@ export function WalletProvider({ children }) {
         return;
       }
       setWallet(solanaWallet);
+      setIsLoggedIn(true);
     } catch (error) {
       console.log("getWalletForSelectedCluster: ", error);
       setWallet(null);
+      setIsLoggedIn(false);
     }
   }
 
@@ -61,7 +64,7 @@ export function WalletProvider({ children }) {
     }, 1000); // 1000 milliseconds = 1 second
 
     return () => clearTimeout(timeoutId); 
-  }, [selectedCluster]);
+  }, [selectedCluster, isLoggedIn]);
 
   const walletPublicKey = useMemo(() => {
     if (!wallet) {
@@ -76,6 +79,7 @@ export function WalletProvider({ children }) {
         wallet,
         walletPublicKey,
         network,
+        isLoggedIn,
         getWalletForSelectedCluster,
         getBalance,
       }}

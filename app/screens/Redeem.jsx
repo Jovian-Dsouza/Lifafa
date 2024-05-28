@@ -59,11 +59,11 @@ const LifafaActions = () => {
   );
 };
 
-function Redeem({ route }) {
+function Redeem({ route, navigation }) {
   const { executeRawTransactionWithJobStatus } = useOkto();
   const { lifafaProgram, claimLifafa, fetchLifafa } = useLifafaProgram();
-  const { wallet, getBalance } = useWallet();
-  const [id, setId] = useState("9254544");
+  const { wallet, getBalance, isLoggedIn } = useWallet();
+  const [id, setId] = useState();
   const [isOpen, setIsOpen] = useState(false);
   const [transactionModalVisible, setTransactionModalVisible] = useState(false);
   const [lifafaData, setLifafaData] = useState();
@@ -140,6 +140,12 @@ function Redeem({ route }) {
       setTransactionModalVisible(false);
     }
   }
+
+  useEffect(() => {
+    if (!isLoggedIn) {
+      navigation.navigate("Login");
+    }
+  }, [isLoggedIn]);
 
   useEffect(() => {
     if (route.params && route.params.id) {
