@@ -8,7 +8,7 @@ import { EnvelopeModal } from "./EnvelopeModal";
 import { getRandomId } from "../utils/random";
 import { useAppContext } from "../providers/AppContextProvider";
 import { TokenSelector } from "./TokenSelector";
-import { BASE_URL, tokens } from "../constants";
+import { tokens } from "../constants";
 import { AmountInput } from "./AmountInput";
 import { MaxClaimsInput } from "./MaxClaimsInput";
 import { DatePicker } from "./DatePicker";
@@ -18,6 +18,7 @@ import { useLifafaProgram } from "../hooks/useLifafaProgram";
 import { useOkto } from "okto-sdk-react-native";
 import { useWallet } from "../providers/WalletProvider";
 import { storeLifafa } from "../utils/firestoreUtils";
+import { handleCopyLink, handleShare } from "../utils/share";
 
 export const CreateLifafaComponent = () => {
   const { executeRawTransactionWithJobStatus } = useOkto();
@@ -102,36 +103,7 @@ export const CreateLifafaComponent = () => {
     }
   }
 
-  async function handleShare() {
-    try {
-      const url = `${BASE_URL}/Redeem/${id}`;
-      const result = await Share.share({
-        title: "Lifafa",
-        message: `Hey there! I've created a Lifafa for you. Click on the link below to redeem it:\n\n${url}`,
-        url: url,
-      });
-      if (result.action === Share.sharedAction) {
-        if (result.activityType) {
-          // shared with activity type of result.activityType
-        } else {
-          // shared
-        }
-      } else if (result.action === Share.dismissedAction) {
-        // dismissed
-      }
-    } catch (error) {
-      alert(error.message);
-    }
-  }
-
-  async function handleCopyLink() {
-    try {
-      const url = `${BASE_URL}/Redeem/${id}`;
-      Clipboard.setString(url);
-    } catch (error) {
-      console.error("handleCopy: ", error);
-    }
-  }
+  
 
   return (
     <View className="min-w-full bg-[#F5F6FE] my-6 rounded-3xl p-4 shadow">
@@ -187,8 +159,8 @@ export const CreateLifafaComponent = () => {
         maxClaims={maxClaims}
         visible={envelopeModalVisible}
         setVisible={setEnvelopModalVisible}
-        onCopyLink={handleCopyLink}
-        onShare={handleShare}
+        onCopyLink={() => {handleCopyLink(id)}}
+        onShare={() => {handleShare(id)}}
       />
     </View>
   );
