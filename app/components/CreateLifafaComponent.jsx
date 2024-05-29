@@ -16,6 +16,8 @@ import { CreateButton } from "./CreateButton";
 import TokenBalance from "./TokenBalance";
 import { useLifafaProgram } from "../hooks/useLifafaProgram";
 import { useOkto } from "okto-sdk-react-native";
+import { useWallet } from "../providers/WalletProvider";
+import { storeLifafa } from "../utils/firestoreUtils";
 
 export const CreateLifafaComponent = () => {
   const { executeRawTransactionWithJobStatus } = useOkto();
@@ -30,6 +32,7 @@ export const CreateLifafaComponent = () => {
   const { user } = useAppContext();
   const [selectedToken, setSelectedToken] = useState(tokens[0]);
   const [txnData, setTxnData] = useState();
+  const { walletPublicKey } = useWallet();
   const fee = useMemo(() => {
     if (txnData) {
       return txnData.fee;
@@ -42,10 +45,6 @@ export const CreateLifafaComponent = () => {
     }
     return 0;
   }, [time]);
-
-  // useEffect(() => {
-  //   console.log(`user: ${user}`)
-  // }, [user])
 
   const isCreateDisabled = useMemo(() => {
     return (
@@ -89,16 +88,16 @@ export const CreateLifafaComponent = () => {
       const result = await executeRawTransactionWithJobStatus(txnData.rawTxn);
       console.log(result);
       if (result.status === "SUCCESS") {
+        storeLifafa(walletPublicKey, id, result.transaction_hash, "created");
         setEnvelopModalVisible(true);
       } //TODO: handle else case
-      else{
+      else {
         alert("Transaction Failed!");
       }
     } catch (error) {
       console.error("handleConfirm: ", error);
-      alert("Transaction Failed!")
-    }
-    finally {
+      alert("Transaction Failed!");
+    } finally {
       setTransactionModalVisible(false);
     }
   }
